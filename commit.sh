@@ -6,8 +6,8 @@ error_exit() {
     exit 1
 }
 
-# Check if an argument is provided
-[ -z "$1" ] && error_exit "Please provide a description argument."
+# Check if a description argument is provided; if not, set to default or leave empty
+dev_description="${1:-No description provided}"
 
 # Find the first CSV file in the current directory
 csv_file=$(find . -maxdepth 1 -type f -name "*.csv" | head -n 1)
@@ -29,7 +29,7 @@ while IFS=',' read -r bug_id description branch developer priority url; do
     developers+=("$developer")
     priorities+=("$priority")
     urls+=("$url")
-done < "$csv_file"  
+done < "$csv_file"
 
 # Get the current branch name
 current_branch=$(git branch --show-current)
@@ -43,7 +43,7 @@ for ((i = 0; i < ${#bug_ids[@]}; i++)); do
         DevName: ${developers[i]}
         Priority: ${priorities[i]}
         ExcelDescription: ${descriptions[i]}
-        DevDescription: $1"
+        DevDescription: $dev_description"
         
         # Check if origin remote exists, if not, add it
         if ! git remote | grep -q "^origin$"; then
@@ -57,5 +57,3 @@ for ((i = 0; i < ${#bug_ids[@]}; i++)); do
 done
 
 echo "Script executed successfully."
-
-
