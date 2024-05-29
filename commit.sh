@@ -6,7 +6,7 @@ error_exit() {
     exit 1
 }
 
-# Check if a description argument is provided; if not, set to default or leave empty
+# Default description if none provided
 dev_description="${1:-No description provided}"
 
 # Find the first CSV file in the current directory
@@ -34,16 +34,22 @@ done < "$csv_file"
 # Get the current branch name
 current_branch=$(git branch --show-current)
 
+# Prepare to write commit message to a file
+commit_file="commit_messages.txt"
+
 # Loop through entries
 for ((i = 0; i < ${#bug_ids[@]}; i++)); do
     if [ "$current_branch" == "${branches[i]}" ]; then
         commit_message="BugId: ${bug_ids[i]}
-        CurrentDate: $(date +'%Y-%m-%d %H:%M:%S')
-        BranchName: ${branches[i]}
-        DevName: ${developers[i]}
-        Priority: ${priorities[i]}
-        ExcelDescription: ${descriptions[i]}
-        DevDescription: $dev_description"
+CurrentDate: $(date +'%Y-%m-%d %H:%M:%S')
+BranchName: ${branches[i]}
+DevName: ${developers[i]}
+Priority: ${priorities[i]}
+ExcelDescription: ${descriptions[i]}
+DevDescription: $dev_description"
+
+        # Write commit message to a file
+        echo "$commit_message" >> "$commit_file"
         
         # Check if origin remote exists, if not, add it
         if ! git remote | grep -q "^origin$"; then
